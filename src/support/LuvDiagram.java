@@ -73,8 +73,8 @@ public class LuvDiagram {
 						double a = getMinA() + x / (double) dw * (getMaxA() - getMinA());
 						
 						double l = L;
-						double u = a / 100d;
-						double v = b / 100d;
+						double u = a;
+						double v = b;
 						
 						ColorLuv luv = new ColorLuv(l, u, v);
 						
@@ -96,7 +96,7 @@ public class LuvDiagram {
 					getAxisColor().getRGB(), 0, getAxisThicknessForSteps());
 			if (a > getMinA())
 				ic = ic.text(getDiagramAreaX() + offX, getDiagramAreaY() + getDiagramAreaHeight() + getAxisTextFontSize() + 2 * getTextInset(),
-						a / 100d + "", getAxisTextColor(), getAxisTextFontSize(), TextJustification.CENTER);
+						a + "", getAxisTextColor(), getAxisTextFontSize(), TextJustification.CENTER);
 		}
 		
 		// Y-Axis grid point lines
@@ -108,7 +108,7 @@ public class LuvDiagram {
 					getAxisColor().getRGB(), 0, getAxisThicknessForSteps());
 			if (b > getMinB())
 				ic = ic.text(getDiagramAreaX() - getTextInset(), getDiagramAreaY() + getAxisTextFontSize() / 2 + 2 + offY,
-						b / 100d + "", getAxisTextColor(), getAxisTextFontSize(), TextJustification.RIGHT);
+						b + "", getAxisTextColor(), getAxisTextFontSize(), TextJustification.RIGHT);
 		}
 		
 		return ic.getImage();
