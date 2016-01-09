@@ -33,12 +33,12 @@ public class LabDiagram {
 	private int axisThickness = 1;
 	private int axisGridPointLineLength = 5;
 	
-	private int minA = -100;
-	private int maxA = 100;
+	private int minA = -120;
+	private int maxA = 120;
 	private int stepA = 20;
 	
-	private int minB = -100;
-	private int maxB = 100;
+	private int minB = -120;
+	private int maxB = 120;
 	private int stepB = 20;
 	private int invalidColor = Color.WHITE.getRGB();
 	private double baseLabL = 75;
@@ -70,13 +70,13 @@ public class LabDiagram {
 			IntConsumer c = new IntConsumer() {
 				@Override
 				public void accept(int y) {
-					double b = getMinB() + (dh - y) / (double) dh * (getMaxB() - getMinB());
+					double b = getMinB() + y / (double) dh * (getMaxB() - getMinB());
 					for (int x = 0; x < dw; x++) {
 						double L = labL;
 						double a = getMinA() + x / (double) dw * (getMaxA() - getMinA());
 						ColorXYZ xyz = new Color_CIE_Lab(L, a, b).getColorXYZ();
 						int color = xyz.getColorRGB(invalidColor);
-						icf.fillRect(x + offX, y + offY, 1, 1, color);
+						icf.fillRect(x + offX, (dh - y) + offY, 1, 1, color);
 					}
 				}
 			};
@@ -99,7 +99,7 @@ public class LabDiagram {
 		
 		// Y-Axis grid point lines
 		for (int b = getMinB(); b < getMaxB(); b += getStepB()) {
-			int offY = (int) (getDiagramAreaHeight() * (b - getMinB()) / (double) (getMaxB() - getMinB()));
+			int offY = getDiagramAreaHeight() - (int) (getDiagramAreaHeight() * (b - getMinB()) / (double) (getMaxB() - getMinB()));
 			ic = ic.drawLine(
 					getDiagramAreaX(), getDiagramAreaY() + offY,
 					getDiagramAreaX() + getAxisGridPointLineLength(), getDiagramAreaY() + offY,
