@@ -8,7 +8,7 @@ import de.ipk.ag_ba.gui.picture_gui.StreamBackgroundTaskHelper;
 import de.ipk.ag_ba.image.structures.Image;
 import de.ipk.ag_ba.image.structures.ImageStack;
 
-public class TestLabDiagram {
+public class TestLuvDiagram {
 	
 	public static void main(String[] args) {
 		ImageStack is = new ImageStack();
@@ -17,7 +17,7 @@ public class TestLabDiagram {
 			@Override
 			public void accept(int value) {
 				int L = value;
-				LabDiagram ld = new LabDiagram(1200, 600, "L*a*b*");
+				LuvDiagram ld = new LuvDiagram(1200, 600, "L*u*v*");
 				ld.setBaseLabL(L);
 				Image i = ld.getImage();
 				i.setFilename("L=" + L);

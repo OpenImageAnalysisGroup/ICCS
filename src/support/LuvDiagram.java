@@ -4,20 +4,17 @@ import java.awt.Color;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 
-import org.color.ColorXYZ;
-import org.color.Color_CIE_Lab;
-
 import de.ipk.ag_ba.gui.picture_gui.StreamBackgroundTaskHelper;
 import de.ipk.ag_ba.image.operation.canvas.ImageCanvas;
 import de.ipk.ag_ba.image.operation.canvas.TextJustification;
 import de.ipk.ag_ba.image.structures.Image;
 
 /**
- * Draws a Lab a-b diagram with axes and highlights points/lines of interest.
+ * Draws a Luv u-v diagram with axes and highlights points/lines of interest.
  * 
  * @author klukas
  */
-public class LabDiagram {
+public class LuvDiagram {
 	private int w, h;
 	private String title;
 	private Color background = Color.LIGHT_GRAY;
@@ -33,17 +30,17 @@ public class LabDiagram {
 	private int axisThickness = 1;
 	private int axisGridPointLineLength = 5;
 	
-	private int minA = -120;
-	private int maxA = 120;
-	private int stepA = 20;
+	private int minA = -200;
+	private int maxA = 200;
+	private int stepA = 10;
 	
-	private int minB = -120;
-	private int maxB = 120;
-	private int stepB = 20;
+	private int minB = -200;
+	private int maxB = 200;
+	private int stepB = 10;
 	private int invalidColor = Color.WHITE.getRGB();
 	private double baseLabL = 75;
 	
-	public LabDiagram(int w, int h, String title) {
+	public LuvDiagram(int w, int h, String title) {
 		this.w = w;
 		this.h = h;
 		this.title = title;
@@ -74,13 +71,18 @@ public class LabDiagram {
 					for (int x = 0; x < dw; x++) {
 						double L = labL;
 						double a = getMinA() + x / (double) dw * (getMaxA() - getMinA());
-						ColorXYZ xyz = new Color_CIE_Lab(L, a, b).getColorXYZ();
-						int color = xyz.getColorRGB(invalidColor);
-						icf.fillRect(x + offX, (dh - y) + offY, 1, 1, color);
+						
+						double l = L;
+						double u = a / 100d;
+						double v = b / 100d;
+						
+						ColorLuv luv = new ColorLuv(l, u, v);
+						
+						icf.fillRect(x + offX, (dh - y) + offY, 1, 1, luv.getRGB(invalidColor));
 					}
 				}
 			};
-			new StreamBackgroundTaskHelper<Integer>("Fill Lab background").process(IntStream.range(0, dh), c, null);
+			new StreamBackgroundTaskHelper<Integer>("Fill Luv background").process(IntStream.range(0, dh), c, null);
 		}
 		
 		ic = ic.drawRectangle(getDiagramAreaX(), getDiagramAreaY(), getDiagramAreaWidth(), getDiagramAreaHeight(), getAxisColor(), getAxisThickness());
@@ -94,7 +96,7 @@ public class LabDiagram {
 					getAxisColor().getRGB(), 0, getAxisThicknessForSteps());
 			if (a > getMinA())
 				ic = ic.text(getDiagramAreaX() + offX, getDiagramAreaY() + getDiagramAreaHeight() + getAxisTextFontSize() + 2 * getTextInset(),
-						a + "", getAxisTextColor(), getAxisTextFontSize(), TextJustification.CENTER);
+						a / 100d + "", getAxisTextColor(), getAxisTextFontSize(), TextJustification.CENTER);
 		}
 		
 		// Y-Axis grid point lines
@@ -106,7 +108,7 @@ public class LabDiagram {
 					getAxisColor().getRGB(), 0, getAxisThicknessForSteps());
 			if (b > getMinB())
 				ic = ic.text(getDiagramAreaX() - getTextInset(), getDiagramAreaY() + getAxisTextFontSize() / 2 + 2 + offY,
-						b + "", getAxisTextColor(), getAxisTextFontSize(), TextJustification.RIGHT);
+						b / 100d + "", getAxisTextColor(), getAxisTextFontSize(), TextJustification.RIGHT);
 		}
 		
 		return ic.getImage();
