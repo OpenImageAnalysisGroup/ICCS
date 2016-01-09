@@ -19,8 +19,8 @@ public class ColorLuv {
 	
 	public ColorLuv(double l, double u, double v) {
 		this.L = l;
-		this.u = u * 100d;
-		this.v = v * 100d;
+		this.u = u;
+		this.v = v;
 	}
 	
 	public int getRGB(int errorColorValue) {
