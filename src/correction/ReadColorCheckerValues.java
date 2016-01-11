@@ -1,6 +1,7 @@
 package correction;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
@@ -12,7 +13,7 @@ public class ReadColorCheckerValues {
 		ControlColorCheckerValues[] out = new ControlColorCheckerValues[24];
 		
 		for (String name : modes) {
-			InputStream s = ReadColorCheckerValues.class.getResourceAsStream(path + "color_checker_values_" + name);
+			FileInputStream s = new FileInputStream(path + "/color_checker_values_" + name);
 			LinkedList<ControlColorCheckerValues> ll = new LinkedList<ControlColorCheckerValues>();
 			
 			BufferedReader b = new BufferedReader(new InputStreamReader(s));

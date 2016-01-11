@@ -2,7 +2,10 @@ package test;
 
 import java.io.File;
 
+import correction.ColorCorrection;
 import correction.ColorValues;
+import correction.ControlColorCheckerValues;
+import correction.ReadColorCheckerValues;
 import de.ipk.ag_ba.image.structures.Image;
 import detection.ColorCheckerDetector;
 import ij.ImageJ;
@@ -22,7 +25,8 @@ public class TestDetection {
 	public static void main(String[] args) throws Exception {
 		// int numOfFiles = HelperMethods.getNumOfFiles("/Desktop/test_images/colorchecker/", "");
 		File pathTestdata = new File("testdata/");
-		String pathCheckervalues = "checkervalues/";
+		File pathCheckervalues = new File("checkervalues/");
+		
 		// File inp = new File("/home/pape/Desktop/test_timeline/half_size/");
 		String[] filenames = pathTestdata.list();
 		
@@ -35,10 +39,13 @@ public class TestDetection {
 			// export samples to ARFF
 			// TODO
 			
-			// ControlColorCheckerValues[] realValues = ReadColorCheckerValues.readValuesFromCsv(pathCheckervalues, new String[] { "XYZ", "LAB", "RGB" });
-			// ColorCorrection cc = new ColorCorrection(samples, realValues);
-			// Image res = cc.correctWB(img).show("WB", false);
-			// HelperMethods.saveImage(pathTestdata.getAbsolutePath() + "/WB/", filenames[i], "png", res);
+			System.out.println("Finish detection.");
+			
+			ControlColorCheckerValues[] realValues = ReadColorCheckerValues.readValuesFromCsv(pathCheckervalues.getPath(), new String[] { "XYZ", "LAB", "RGB" });
+			ColorCorrection cc = new ColorCorrection(samples, realValues);
+			Image resWB = cc.correctWB(img).show("WB", false);
+			// Image resWW = cc.correctImage(img, ColorCorrection., regTypePoly, 2);
+			HelperMethods.saveImage(System.getProperty("user.home") + "/Desktop" + "/WB/", filenames[i], "png", resWB);
 			// cc.correctImage(img, ColorModes.LAB_L, false, 2).show("corrected");
 			
 			System.out.println();
