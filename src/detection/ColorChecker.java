@@ -284,6 +284,15 @@ public class ColorChecker {
 		}
 	}
 	
+	/**
+	 * Samples Average color values in a circle defined by {x,y,r}.
+	 * @param x
+	 * @param y
+	 * @param r
+	 * @param img
+	 * @param w
+	 * @return
+	 */
 	private double sampleColor(int x, int y, int r, int[] img, int w) {
 		int sum = 0;
 		int n = 0;
@@ -414,5 +423,12 @@ public class ColorChecker {
 	
 	public ColorValues[] getSampleList() {
 		return sampleList;
+	}
+
+	public void addNamestoSampleList() {
+		String names[] = new String[] {"Darkskin", "Lightskin", "Bluesky", "Foliage", "Blueflower", "Bluishgreen", "Orange", "Purplishblue", "Moderatered", "Purple", "Yellowgreen", "Orangeyellow", "Blue", "Green", "Red", "Yellow", "Magenta", "Cyan", "White", "Neutral8", "Neutral6.5", "Neutral5", "Neutral3.5", "Black"};
+		for(int idx = 0; idx < sampleList.length; idx++) {
+			sampleList[idx].name = names[idx];
+		}
 	}
 }

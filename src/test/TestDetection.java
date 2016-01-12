@@ -33,17 +33,18 @@ public class TestDetection {
 		for (int i = 0; i < filenames.length; i++) {
 			Image img = HelperMethods.readImageAbsPath(pathTestdata.getAbsolutePath() + "/" + filenames[i]); // "color_checker_7.png");//
 			ColorCheckerDetector ccd = new ColorCheckerDetector(img, scale, debug);
-			ColorValues[] samples = ccd.getSamples();
+			ColorValues[] samples = ccd.getSamples(true);
 			ccd.getDebugImage().show("debug", true);
 			
 			// export samples to ARFF
-			// TODO
+			ccd.exporttoArff(samples, System.getProperty("user.home") + "/Desktop" + "/WB/", "samples");
 			
 			System.out.println("Finish detection.");
 			
 			ControlColorCheckerFields[] realValues = ReadColorCheckerValues.readValuesFromCsv(pathCheckervalues.getPath(), new String[] { "XYZ", "LAB", "RGB" });
 			ColorCorrection cc = new ColorCorrection(samples, realValues);
-			Image resWB = cc.correctWB(img).show("WB", false);
+//			cc.testLMS();
+			Image resWB = cc.correctWBVanKries(img).show("WB", false);
 			Image resREG = cc.correctImage(img, ColorCorrection.ColorModes.LAB_L, false, 1);
 			Image resPOLY = cc.correctImage(img, ColorCorrection.ColorModes.LAB_L, true, 4);
 			
@@ -57,12 +58,12 @@ public class TestDetection {
 			resREG.show("resREG");
 			resPOLY.show("resPOLY");
 			
-			Thread.sleep(100000);
+			Thread.sleep(100);
 		}
 		
 		ImageJ ij = new ImageJ();
 		ij.setVisible(true);
-		Thread.sleep(100);
+		Thread.sleep(1000000);
 		System.out.println("Finish");
 	}
 }

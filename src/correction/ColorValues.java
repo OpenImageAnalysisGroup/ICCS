@@ -8,6 +8,7 @@ public class ColorValues {
 	Lab labAvg;
 	Lab rgbAvg;
 	Lab hsvAvg;
+	public String name;
 	
 	public ColorValues(Point center) {
 		this.center = center;
