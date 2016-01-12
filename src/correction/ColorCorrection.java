@@ -15,7 +15,7 @@ import de.ipk.ag_ba.image.structures.Image;
 public class ColorCorrection {
 	
 	ColorValues[] samples;
-	ControlColorCheckerValues[] controlValues;
+	ControlColorCheckerFields[] controlValues;
 	private SimpleRegression regressionL;
 	private SimpleRegression regressionA;
 	private SimpleRegression regressionB;
@@ -23,9 +23,20 @@ public class ColorCorrection {
 	private PolynomialFunction poly2;
 	private PolynomialFunction poly3;
 	
-	public ColorCorrection(ColorValues[] samples, ControlColorCheckerValues[] realValues) {
+	public ColorCorrection(ColorValues[] samples, ControlColorCheckerFields[] realValues) {
 		this.samples = samples;
 		this.controlValues = realValues;
+	}
+	
+	public Image correctImage(Image inp, ColorModes mode, boolean regTypePoly, int degree) {
+		calculateTransformation(regTypePoly, mode, degree);
+		Image corrected;
+		
+		if (!regTypePoly)
+			corrected = correctImage(regressionL, regressionA, regressionB, inp);
+		else
+			corrected = correctImage(poly1, poly2, poly3, inp);
+		return corrected;
 	}
 	
 	private void calculateTransformation(boolean regTypePoly, ColorModes mode, int degree) {
@@ -116,21 +127,10 @@ public class ColorCorrection {
 			corr_g = corr_g < 0 ? 0 : corr_g;
 			corr_b = corr_b < 0 ? 0 : corr_b;
 			
-			res[x] = new Color(corr_r, g, corr_b).getRGB();
+			res[x] = new Color(corr_r, corr_g, corr_b).getRGB();
 		}
 		
 		return new Image(inp.getWidth(), inp.getHeight(), res);
-	}
-	
-	public Image correctImage(Image inp, ColorModes mode, boolean regTypePoly, int degree) {
-		calculateTransformation(regTypePoly, mode, degree);
-		Image corrected;
-		
-		if (!regTypePoly)
-			corrected = correctImage(regressionL, regressionA, regressionB, inp);
-		else
-			corrected = correctImage(poly1, poly2, poly3, inp);
-		return corrected;
 	}
 	
 	private static Image correctImage(SimpleRegression regressionL, SimpleRegression regressionA, SimpleRegression regressionB, Image inp) {
@@ -205,8 +205,8 @@ public class ColorCorrection {
 		}
 		
 		for (int idx = 0; idx < controlValues.length; idx++) {
-			Field fieldControl = ControlColorCheckerValues.class.getDeclaredField(colorSpaceName);
-			Field fieldName = ControlColorCheckerValues.class.getDeclaredField("name");
+			Field fieldControl = ControlColorCheckerFields.class.getDeclaredField(colorSpaceName);
+			Field fieldName = ControlColorCheckerFields.class.getDeclaredField("name");
 			double[] valueControl = (double[]) fieldControl.get(controlValues[idx]);
 			// Field fieldM = RealColorCheckerValues.class.getDeclaredField(channel);
 			// double valueM = (double) fieldM.get(samples[idx]);
@@ -217,13 +217,13 @@ public class ColorCorrection {
 				valueM = samples[idx].getLabAvg().getAverageA();
 			if (channelName.contains("B"))
 				valueM = samples[idx].getLabAvg().getAverageB();
-			System.out.println(cmode + "	" + valueM + "	" + valueControl[positionOfMatch] + "	" + fieldName.get(controlValues[idx]));
+			System.out.println(cmode + "	sampled: " + valueM + "	control: " + valueControl[positionOfMatch] + "	name: " + fieldName.get(controlValues[idx]));
 			res[idx] = new Vector2D(valueControl[positionOfMatch], valueM);
 		}
 		return res;
 	}
 	
-	enum ColorModes {
+	public enum ColorModes {
 		LAB_L, LAB_A, LAB_B, RGB_R, RGB_G, RGB_B, HSV_H, HSV_S, HSV_V, XYZ_X, XYZ_Y, XYZ_Z
 	}
 }

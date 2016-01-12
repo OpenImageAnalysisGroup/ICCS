@@ -48,8 +48,8 @@ public class ColorCheckerDetector {
 		
 		// prepare
 		// color balance
-		// img = img.io().histogramEqualisation(true, 0.35).getImage();
-		// img.show("enhanced", debug);
+		img = img.io().histogramEqualisation(true, 0.35).getImage();
+		img.show("enhanced", debug);
 		
 		// convert to gray
 		img = img.io().resize(scale).convertRGB2Grayscale(GrayscaleMode.LUMINOSITY, false).getImage();
@@ -108,8 +108,8 @@ public class ColorCheckerDetector {
 			
 			// create checker object
 			this.checker = new ColorChecker(segmentList);
-			// checker.filterByFeatures();
-			// checker.filterByEdges();
+			checker.filterByFeatures();
+			checker.filterByEdges();
 			checker.calcRect();
 			checker.samplePositions();
 			checker.sampleColors(img_orig.io().resize(scale).getImage(), 5);

@@ -9,23 +9,28 @@ import java.util.LinkedList;
 
 public class ReadColorCheckerValues {
 	
-	public static ControlColorCheckerValues[] readValuesFromCsv(String path, String[] modes) throws Exception {
-		ControlColorCheckerValues[] out = new ControlColorCheckerValues[24];
+	public static ControlColorCheckerFields[] readValuesFromCsv(String path, String[] modes) throws Exception {
+		ControlColorCheckerFields[] out = new ControlColorCheckerFields[24];
 		
-		for (String name : modes) {
-			FileInputStream s = new FileInputStream(path + "/color_checker_values_" + name);
-			LinkedList<ControlColorCheckerValues> ll = new LinkedList<ControlColorCheckerValues>();
+		for (String spaceName : modes) {
+			System.out.println("ReadMode: " + spaceName);
+			FileInputStream s = new FileInputStream(path + "/color_checker_values_" + spaceName);
+			LinkedList<Color> ll = new LinkedList<Color>();
 			
 			BufferedReader b = new BufferedReader(new InputStreamReader(s));
 			while (b.ready()) {
-			String line = b.readLine();
-			ControlColorCheckerValues v = getValFromLine(line, name);
-			ll.add(v);
+				String line = b.readLine();
+				Color v = getValFromLine(line, spaceName);
+				ll.add(v);
 			}
 			
 			int i = 0;
-			for (ControlColorCheckerValues l : ll)
-			out[i++] = l;
+			for (Color l : ll) {
+				if(out[i] == null) {
+					out[i] = new ControlColorCheckerFields();
+				}
+				out[i++].setField(spaceName, l.name,  l.values);
+			}
 		}
 		
 		return out;
@@ -34,20 +39,22 @@ public class ReadColorCheckerValues {
 	/**
 	 * Data File should look like this: name value_1 value_2 value_3
 	 */
-	private static ControlColorCheckerValues getValFromLine(String line, String name) throws NumberFormatException, IllegalArgumentException,
+	private static Color getValFromLine(String line, String name) throws NumberFormatException, IllegalArgumentException,
 			IllegalAccessException {
 		String[] split = line.split(" ");
-		ControlColorCheckerValues cv = new ControlColorCheckerValues();
+		ControlColorCheckerFields cv = new ControlColorCheckerFields();
 		Field[] fields = cv.getClass().getDeclaredFields();
+		Color col = null;
 		
 		for (int idx = 0; idx < fields.length; idx++) {
 			// name
 			if (fields[idx].getName().endsWith("name") && idx == 0)
 			fields[idx].set(cv, split[0]);
+
 			if (fields[idx].getName() == name)
-			fields[idx].set(cv, new double[] { Double.parseDouble(split[1]), Double.parseDouble(split[2]), Double.parseDouble(split[3]) });
+				col = new Color(cv.name, new double[] { Double.parseDouble(split[1]), Double.parseDouble(split[2]), Double.parseDouble(split[3]) });
 		}
 		
-		return cv;
+		return col;
 	}
 }
