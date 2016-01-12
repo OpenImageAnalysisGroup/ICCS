@@ -9,8 +9,11 @@ import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 
+import colors.Color_Transformer_2;
 import de.ipk.ag_ba.image.color.Color_CIE_Lab;
+import de.ipk.ag_ba.image.operation.ColorSpaceConverter;
 import de.ipk.ag_ba.image.structures.Image;
+import support.HelperMethods;
 
 public class ColorCorrection {
 	
@@ -66,41 +69,18 @@ public class ColorCorrection {
 		}
 	}
 	
-	// public ColorValues correctValues(ColorModes mode, int degree) {
-	// calculateTransformation(true, mode, degree);
-	//
-	// ColorValues corrected;
-	//
-	// corrected = correctValues(poly1, poly2, poly3);
-	//
-	// return corrected;
-	// }
-	//
-	// private ColorValues correctValues(PolynomialFunction regressionL, PolynomialFunction regressionA, PolynomialFunction regressionB) {
-	// ColorValues[] corr = new ColorValues[24];
-	// Color_CIE_Lab lab;
-	//
-	// for (int x = 0; x < samples.length; x++) {
-	//
-	// double predL = regressionL.value(samples[x].labAvg.getAverageL());
-	// double predA = regressionA.value(samples[x].labAvg.getAverageA());
-	// double predB = regressionB.value(samples[x].labAvg.getAverageB());
-	//
-	// Color crgb = new Color(new Color_CIE_Lab(predL, predA, predB).getRGB());
-	// corr[x] = crgb.getRGB();
-	// }
-	// return new Image(inp.getWidth(), inp.getHeight(), corr);
-	// }
-	
-	// use white patch for WB
-	public Image correctWB(Image inp) {
-		double red_min = controlValues[23].RGB[0] - samples[23].rgbAvg.getAverageL();
-		double green_min = controlValues[23].RGB[1] - samples[23].rgbAvg.getAverageA();
-		double blue_min = controlValues[23].RGB[2] - samples[23].rgbAvg.getAverageB();
+	/**
+	 * Common approach for color balancing using the white patch.
+	 * @param inp - input image
+	 * @return corrected image
+	 */
+	public Image correctWBClassicRGB(Image inp) {
 		
-		double red_max = samples[18].rgbAvg.getAverageL();
-		double green_max = samples[18].rgbAvg.getAverageA();
-		double blue_max = samples[18].rgbAvg.getAverageB();
+		double red_f = controlValues[18].RGB[0] / samples[18].rgbAvg.getAverageL();
+		double green_f = controlValues[18].RGB[1] / samples[18].rgbAvg.getAverageA();
+		double blue_f = controlValues[18].RGB[2] / samples[18].rgbAvg.getAverageB();
+		
+		System.out.println("WB: red_f = " + controlValues[18].RGB[0] + "  " + samples[18].rgbAvg.getAverageL());
 		
 		int[] inp1d = inp.getAs1A();
 		int[] res = new int[inp1d.length];
@@ -111,13 +91,9 @@ public class ColorCorrection {
 			int g = (c & 0x00ff00) >> 8;
 			int b = c & 0x0000ff;
 			
-			double fr = (r + red_min) > 0 ? r + red_min : 0;
-			double fg = (g + green_min) > 0 ? r + green_min : 0;
-			double fb = (b + blue_min) > 0 ? b + blue_min : 0;
-			
-			int corr_r = (int) (fr / red_max * 254);
-			int corr_g = (int) (fg / green_max * 254);
-			int corr_b = (int) (fb / blue_max * 254);
+			int corr_r = (int) (r * red_f);
+			int corr_g = (int) (g * green_f);
+			int corr_b = (int) (b * blue_f);
 			
 			corr_r = corr_r > 254 ? 254 : corr_r;
 			corr_g = corr_g > 254 ? 254 : corr_g;
@@ -131,6 +107,65 @@ public class ColorCorrection {
 		}
 		
 		return new Image(inp.getWidth(), inp.getHeight(), res);
+	}
+	
+	public Image correctWBVanKries(Image inp) {
+		
+		int[] inp1d = inp.getAs1A();
+		int[] res = new int[inp1d.length];
+		ColorSpaceConverter csc = new ColorSpaceConverter();
+		
+		int[] controlwhite = new int[] {(int) controlValues[18].RGB[0], (int) controlValues[18].RGB[1], (int) controlValues[18].RGB[2]};
+		double[] xyzControlWhite = csc.RGBtoXYZ(controlwhite);
+		double[] lmsControlWhite = HelperMethods.XYZtoLMS(xyzControlWhite);
+		
+		for (int x = 0; x < inp1d.length; x++) {
+			int c = inp1d[x];
+			int r = (c & 0xff0000) >> 16;
+			int g = (c & 0x00ff00) >> 8;
+			int b = c & 0x0000ff;
+			
+			double[] xyz_sampled = csc.RGBtoXYZ(new int[] {r, g, b});
+			double[] lms_sampled = HelperMethods.XYZtoLMS(xyz_sampled);
+			
+			double l = (255.0 / lmsControlWhite[0]) * lms_sampled[0];
+			double m = (255.0 / lmsControlWhite[1]) * lms_sampled[1];
+			double s = (255.0 / lmsControlWhite[2]) * lms_sampled[2];
+			
+			double[] xyz_corr = HelperMethods.LMStoXYZ(new double[] {l, m, s});
+			int[] rgb_corr = csc.XYZtoRGB(xyz_corr);
+			
+			int corr_r = (int) rgb_corr[0];
+			int corr_g = (int) rgb_corr[1];
+			int corr_b = (int) rgb_corr[2];
+			
+			corr_r = corr_r > 254 ? 254 : corr_r;
+			corr_g = corr_g > 254 ? 254 : corr_g;
+			corr_b = corr_b > 254 ? 254 : corr_b;
+			
+			corr_r = corr_r < 0 ? 0 : corr_r;
+			corr_g = corr_g < 0 ? 0 : corr_g;
+			corr_b = corr_b < 0 ? 0 : corr_b;
+			
+			res[x] = new Color(corr_r, corr_g, corr_b).getRGB();
+		}
+		
+		return new Image(inp.getWidth(), inp.getHeight(), res);
+	}
+	
+	public void testLMS() {
+		
+		int[] rgb = new int[] {100, 90, 130};
+		
+		ColorSpaceConverter csc = new ColorSpaceConverter();
+		
+		double[] xyz = csc.RGBtoXYZ(rgb);
+		double[] lms = HelperMethods.XYZtoLMS(xyz);
+		double[] xyz_back = HelperMethods.LMStoXYZ(lms);
+		int[] rgb_back = csc.XYZtoRGB(xyz_back);
+		
+		System.out.println("in: " + xyz[0] + "|" + xyz[1] + "|" + xyz[2] + " out: " + xyz_back[0] + "|" + xyz_back[1] + "|" + + xyz_back[2]);
+		System.out.println("in: " + rgb[0] + "|" + rgb[1] + "|" + rgb[2] + " out: " + rgb_back[0] + "|" + rgb_back[1] + "|" + + rgb_back[2]);
 	}
 	
 	private static Image correctImage(SimpleRegression regressionL, SimpleRegression regressionA, SimpleRegression regressionB, Image inp) {

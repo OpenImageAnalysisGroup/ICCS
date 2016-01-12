@@ -351,4 +351,32 @@ public class HelperMethods {
 		
 		return res;
 	}
+
+	/**
+	 * Color conversion to LMS colorspace, normalized to D65.
+	 * @param xyz - XYZ values
+	 * @return LMS values
+	 */
+	public static double[] XYZtoLMS(double[] xyz) {
+		double l = xyz[0] * 0.4002 + xyz[1] * 0.7076 + xyz[2] * -0.0808;
+		double m = xyz[0] * -0.2263 + xyz[1] * 1.1653 + xyz[2] * -0.0457;
+		double s = xyz[0] * 0.0 + xyz[1] * 0.0 + xyz[2] * 0.9182;
+		return new double[] {l, m, s};
+	}
+
+	/**
+	 * 
+	 * @param lms
+	 * @return
+	 * 
+	 *  58265000/31324147   -1220000/1080143   15454730000/143809158877  
+ 	 *11315000/31324147    690000/1080143     9143545000/143809158877  
+     *   0                   0                  5000/4591  
+	 */
+	public static double[] LMStoXYZ(double[] lms) {
+		double x = lms[0] * 1.8600 + lms[1] * -1.1294  + lms[2] * 0.1074;
+		double y = lms[0] * 0.3612 + lms[1] * 0.6388 + lms[2] * 0.0635;
+		double z = lms[0] * 0.0 + lms[1] * 0.0 + lms[2] * 1.08909;
+		return new double[] {x, y, z};
+	}
 }
