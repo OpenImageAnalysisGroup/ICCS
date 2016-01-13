@@ -194,9 +194,8 @@ public class ColorChecker {
 				validSegments++;
 		
 		if (validSegments < 10) {
-			System.out.println("To few segments!! Abort.");
 			error = true;
-			return;
+			throw new Exception("To few segments ("+ validSegments +" of minThresh: 10) !! Abort.");
 		}
 		
 		Point[] points = new Point[validSegments];
