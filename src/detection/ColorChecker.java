@@ -9,6 +9,8 @@ import java.util.LinkedList;
 import org.Vector2d;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
+import correction.ColorICCS;
+import correction.ColorSpaces;
 import correction.ColorValues;
 import de.ipk.ag_ba.image.color.Color_CIE_Lab;
 import de.ipk.ag_ba.image.operation.Lab;
@@ -150,19 +152,19 @@ public class ColorChecker {
 		
 		int iii = 0;
 		for (ColorValues seg : sampleList) {
-			if (seg.getRgbAvg() == null)
+			if (seg.getAvgColor(ColorSpaces.RGB) == null)
 				continue;
 			Point p = seg.center;
 			DecimalFormat f = new DecimalFormat("#0");
 			if (p != null) {
 				ic.drawRectangle((int) (p.x) - 2, (int) (p.y) - 2, 14, 14, Color.BLACK, 3);
-				ic.drawRectanglePoints((int) (p.x), (int) (p.y), 10, 10, new Color((int) seg.getRgbAvg().getAverageL(), (int) seg.getRgbAvg().getAverageA(),
-						(int) seg.getRgbAvg().getAverageB()), 3);
+				ic.drawRectanglePoints((int) (p.x), (int) (p.y), 10, 10, new Color((int) seg.getAvgColor(ColorSpaces.RGB).getA(), (int) seg.getAvgColor(ColorSpaces.RGB).getB(),
+						(int) seg.getAvgColor(ColorSpaces.RGB).getC()), 3);
 				ic.text((int) (p.x) - 40, (int) (p.y) - 40,
-						"No: " + iii++ + "\n" + f.format(seg.getLabAvg().getAverageL()) + "\n" + f.format(seg.getLabAvg().getAverageA())
-								+ "\n" + f.format(seg.getLabAvg().getAverageB()), Color.YELLOW);
-				System.out.println(iii + " Lab: " + seg.getLabAvg().getAverageL() + " | " + seg.getLabAvg().getAverageA() + " | "
-						+ seg.getLabAvg().getAverageB());
+						"No: " + iii++ + "\n" + f.format(seg.getAvgColor(ColorSpaces.Lab).getA()) + "\n" + f.format(seg.getAvgColor(ColorSpaces.Lab).getB())
+								+ "\n" + f.format(seg.getAvgColor(ColorSpaces.Lab).getC()), Color.YELLOW);
+				System.out.println(iii + " Lab: " + seg.getAvgColor(ColorSpaces.Lab).getA() + " | " + seg.getAvgColor(ColorSpaces.Lab).getB() + " | "
+						+ seg.getAvgColor(ColorSpaces.Lab).getC());
 			}
 		}
 		
@@ -268,19 +270,19 @@ public class ColorChecker {
 			double gre_sample = sampleColor(x, y, r, gre_img, w);
 			double blu_sample = sampleColor(x, y, r, blu_img, w);
 			
-			s.setRgbAvg(new Lab(red_sample, gre_sample, blu_sample));
+			s.setAvgColor(ColorSpaces.RGB, new ColorICCS(red_sample, gre_sample, blu_sample));
 			
 			double hue_sample = sampleColor(x, y, r, hue_img, w);
 			double sat_sample = sampleColor(x, y, r, sat_img, w);
 			double val_sample = sampleColor(x, y, r, val_img, w);
 			
-			s.setHsvAvg(new Lab(hue_sample, sat_sample, val_sample));
+			s.setAvgColor(ColorSpaces.HSV, new ColorICCS(hue_sample, sat_sample, val_sample));
 			
 			double lum_sample = sampleColorLabL(x, y, r, orig.getAs1A(), w);
 			double a_sample = sampleColorLabA(x, y, r, orig.getAs1A(), w);
 			double b_sample = sampleColorLabB(x, y, r, orig.getAs1A(), w);
 			
-			s.setLabAvg(new Lab(lum_sample, a_sample, b_sample));
+			s.setAvgColor(ColorSpaces.Lab, new ColorICCS(lum_sample, a_sample, b_sample));
 		}
 	}
 	
@@ -373,7 +375,7 @@ public class ColorChecker {
 	
 	/**
 	 * Tries to identify the bottom line of color values (less saturated) and orders the samples beginning with the brown segment: 0 - brown, ..., 18 - white,
-	 * ..., 23 - black.
+	 * ..., 23 - black. (based on HSV colors)
 	 */
 	public void getSampleOrder(boolean useSat) {
 		// find bottom row black -> white, must be the first 6 or the last 6 entries
@@ -385,9 +387,9 @@ public class ColorChecker {
 			int n = 0;
 			for (ColorValues s : sampleList) {
 				if (n < 6)
-					firstAvgSat += s.getHsvAvg().getAverageB();
+					firstAvgSat += s.getAvgColor(ColorSpaces.HSV).getC();
 				if (n > 17)
-					lastAvgSat += s.getHsvAvg().getAverageB();
+					lastAvgSat += s.getAvgColor(ColorSpaces.HSV).getC();
 				n++;
 			}
 			
@@ -397,8 +399,8 @@ public class ColorChecker {
 			swap = lastAvgSat > firstAvgSat;
 			
 		} else {
-			double ratio1 = Math.abs(sampleList[23].getHsvAvg().getAverageB() - sampleList[18].getHsvAvg().getAverageB());
-			double ratio2 = Math.abs(sampleList[5].getHsvAvg().getAverageB() - sampleList[0].getHsvAvg().getAverageB());
+			double ratio1 = Math.abs(sampleList[23].getAvgColor(ColorSpaces.HSV).getC() - sampleList[18].getAvgColor(ColorSpaces.HSV).getC());
+			double ratio2 = Math.abs(sampleList[5].getAvgColor(ColorSpaces.HSV).getC() - sampleList[0].getAvgColor(ColorSpaces.HSV).getC());
 			
 			swap = ratio2 > ratio1;
 		}
@@ -412,7 +414,7 @@ public class ColorChecker {
 		}
 		
 		// if #18 more dark than #23 -> flip rows
-		if (sampleList[23].getHsvAvg().getAverageB() > sampleList[18].getHsvAvg().getAverageB()) {
+		if (sampleList[23].getAvgColor(ColorSpaces.HSV).getC() > sampleList[18].getAvgColor(ColorSpaces.HSV).getC()) {
 			ColorValues[] tempList = new ColorValues[24];
 			for (int i = 0; i < 24; i++) {
 				tempList[i] = sampleList[(i / 6) * 6 + 5 - (i % 6)];
