@@ -1,41 +1,34 @@
 package correction;
 
-import de.ipk.ag_ba.image.operation.Lab;
+import java.util.LinkedList;
+
 import de.ipk.ag_ba.image.operations.complex_hull.Point;
 
 public class ColorValues {
 	public Point center;
-	Lab labAvg;
-	Lab rgbAvg;
-	Lab hsvAvg;
+	LinkedList<ColorICCS> avgList = new LinkedList<>();
 	public String name;
 	
 	public ColorValues(Point center) {
 		this.center = center;
 	}
 	
-	public Lab getLabAvg() {
-		return labAvg;
+	public void setAvgColor(ColorICCS c) {
+		
 	}
 	
-	public void setLabAvg(Lab labAvg) {
-		this.labAvg = labAvg;
+	public ColorICCS getAvgColor(ColorSpaces colorspace) {
+		ColorICCS res = null;
+		for(ColorICCS color : avgList) {
+			if(color.colorSpace == colorspace.name())
+				res = color;	
+		}
+		return res;
 	}
-	
-	public Lab getRgbAvg() {
-		return rgbAvg;
+
+	public void setAvgColor(ColorSpaces cs, ColorICCS colorICCS) {
+		if(colorICCS.colorSpace == null)
+			colorICCS.colorSpace = cs.name();
+		avgList.add(colorICCS);
 	}
-	
-	public void setRgbAvg(Lab rgbAvg) {
-		this.rgbAvg = rgbAvg;
-	}
-	
-	public Lab getHsvAvg() {
-		return hsvAvg;
-	}
-	
-	public void setHsvAvg(Lab hsvAvg) {
-		this.hsvAvg = hsvAvg;
-	}
-	
 }

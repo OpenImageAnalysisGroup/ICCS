@@ -76,11 +76,11 @@ public class ColorCorrection {
 	 */
 	public Image correctWBClassicRGB(Image inp) {
 		
-		double red_f = controlValues[18].RGB[0] / samples[18].rgbAvg.getAverageL();
-		double green_f = controlValues[18].RGB[1] / samples[18].rgbAvg.getAverageA();
-		double blue_f = controlValues[18].RGB[2] / samples[18].rgbAvg.getAverageB();
+		double red_f = controlValues[18].RGB[0] / samples[18].getAvgColor(ColorSpaces.RGB).getA();
+		double green_f = controlValues[18].RGB[1] / samples[18].getAvgColor(ColorSpaces.RGB).getB();
+		double blue_f = controlValues[18].RGB[2] / samples[18].getAvgColor(ColorSpaces.RGB).getC();
 		
-		System.out.println("WB: red_f = " + controlValues[18].RGB[0] + "  " + samples[18].rgbAvg.getAverageL());
+		System.out.println("WB: red_f = " + controlValues[18].RGB[0] + "  " + samples[18].getAvgColor(ColorSpaces.RGB).getA());
 		
 		int[] inp1d = inp.getAs1A();
 		int[] res = new int[inp1d.length];
@@ -247,11 +247,11 @@ public class ColorCorrection {
 			// double valueM = (double) fieldM.get(samples[idx]);
 			double valueM = 0.0;
 			if (channelName.contains("L"))
-				valueM = samples[idx].getLabAvg().getAverageL();
+				valueM = samples[idx].getAvgColor(ColorSpaces.Lab).getA();
 			if (channelName.contains("A"))
-				valueM = samples[idx].getLabAvg().getAverageA();
+				valueM = samples[idx].getAvgColor(ColorSpaces.Lab).getB();
 			if (channelName.contains("B"))
-				valueM = samples[idx].getLabAvg().getAverageB();
+				valueM = samples[idx].getAvgColor(ColorSpaces.Lab).getC();
 			System.out.println(cmode + "	sampled: " + valueM + "	control: " + valueControl[positionOfMatch] + "	name: " + fieldName.get(controlValues[idx]));
 			res[idx] = new Vector2D(valueControl[positionOfMatch], valueM);
 		}

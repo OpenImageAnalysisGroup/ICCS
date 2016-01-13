@@ -9,6 +9,7 @@ import correction.ReadColorCheckerValues;
 import de.ipk.ag_ba.image.structures.Image;
 import detection.ColorCheckerDetector;
 import ij.ImageJ;
+import support.ARFFExport;
 import support.HelperMethods;
 
 /**
@@ -36,7 +37,8 @@ public class TestDetectionandSimpleCorrection {
 			ccd.getDebugImage().show("debug", true);
 			
 			// export samples to ARFF
-			ccd.exporttoArff(samples, System.getProperty("user.home") + "/Desktop" + "/WB/", "samples");
+			ARFFExport ae = new ARFFExport();
+			ae.exporttoArff1(samples, System.getProperty("user.home") + "/Desktop" + "/WB/", "samples");
 			
 			System.out.println("Finish detection.");
 			

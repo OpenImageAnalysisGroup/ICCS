@@ -126,6 +126,11 @@ public class ColorCheckerDetector {
 		return checker.drawArtificialChecker(img_orig.copy(), scale, true);
 	}
 	
+	/**
+	 * Get Samples from color checker, including checker detection.
+	 * @param b - add color names
+	 * @return
+	 */
 	public ColorValues[] getSamples(boolean b) throws Exception {
 		this.findChecker();
 		if(b)
@@ -349,38 +354,5 @@ public class ColorCheckerDetector {
 			res[temp.x - dim[0]][temp.y - dim[2]] = temp.intensityInt;
 		}
 		return res;
-	}
-
-	/**
-	 * Export sampled values to Arff format.
-	 * @param samples - list of colorvalues for color checker patches.
-	 * @throws IOException 
-	 */
-	public void exporttoArff(ColorValues[] samples, String path, String name) throws IOException {
-		FileWriter fw = new FileWriter(new File(path + "/" + name + ".arff"), false);
-		
-		String header = "";
-		String line = "";
-		
-		// create header
-		String colors[] = new String[] {"R", "G", "B", "H", "S", "V", "L", "A", "B"};
-		for(String col : colors)
-			header += "@attribute " + col
-			+ "\tNUMERIC\n";
-		
-		header = "%\n" + "@relation '" + name + "'\n" + header
-				+ "@data\n";
-				
-		fw.write(header);
-	
-			
-		// start to add lines
-		for(ColorValues s : samples) {
-			line = s.getRgbAvg().getAverageL() + " " + s.getRgbAvg().getAverageA() + " " + s.getRgbAvg().getAverageB() + " " + s.getHsvAvg().getAverageL() + " " + s.getHsvAvg().getAverageA() + " " + s.getHsvAvg().getAverageB() + " " + s.getLabAvg().getAverageL() + " " + s.getLabAvg().getAverageA() + " " + s.getLabAvg().getAverageB() + "\n";
-				fw.write(line);
-		}
-		
-		fw.write("%");
-		fw.close();
 	}
 }
