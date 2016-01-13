@@ -16,18 +16,17 @@ import support.HelperMethods;
  * 
  * @author pape
  */
-public class TestDetection {
+public class TestDetectionandSimpleCorrection {
 	
 	static boolean debug = true;
 	static double scale = 1.0;
 	
 	// run test
 	public static void main(String[] args) throws Exception {
-		// int numOfFiles = HelperMethods.getNumOfFiles("/Desktop/test_images/colorchecker/", "");
-		File pathTestdata = new File("testdata/");
+
+		File pathTestdata = new File("testdata/testdetectiondata");
 		File pathCheckervalues = new File("checkervalues/");
 		
-		// File inp = new File("/home/pape/Desktop/test_timeline/half_size/");
 		String[] filenames = pathTestdata.list();
 		
 		for (int i = 0; i < filenames.length; i++) {
@@ -43,22 +42,23 @@ public class TestDetection {
 			
 			ControlColorCheckerFields[] realValues = ReadColorCheckerValues.readValuesFromCsv(pathCheckervalues.getPath(), new String[] { "XYZ", "LAB", "RGB" });
 			ColorCorrection cc = new ColorCorrection(samples, realValues);
-//			cc.testLMS();
-			Image resWB = cc.correctWBVanKries(img).show("WB", false);
+			
+			Image resWB = cc.correctWBClassicRGB(img).show("WB", false);
 			Image resREG = cc.correctImage(img, ColorCorrection.ColorModes.LAB_L, false, 1);
 			Image resPOLY = cc.correctImage(img, ColorCorrection.ColorModes.LAB_L, true, 4);
 			
-			HelperMethods.saveImage(System.getProperty("user.home") + "/Desktop" + "/WB/", (String) filenames[i].subSequence(0, filenames[i].length() - 4), "_WB.png", resWB);
-			HelperMethods.saveImage(System.getProperty("user.home") + "/Desktop" + "/WB/", (String) filenames[i].subSequence(0, filenames[i].length() - 4), "_REG.png", resREG);
-			HelperMethods.saveImage(System.getProperty("user.home") + "/Desktop" + "/WB/", (String) filenames[i].subSequence(0, filenames[i].length() - 4), "_POLY.png", resPOLY);
+			String fname = (String) filenames[i].subSequence(0, filenames[i].length() - 4);
+			HelperMethods.saveImage(System.getProperty("user.home") + "/Desktop" + "/WB/", fname + "_WB", "png", resWB);
+			HelperMethods.saveImage(System.getProperty("user.home") + "/Desktop" + "/WB/", fname + "_REG" , "png", resREG);
+			HelperMethods.saveImage(System.getProperty("user.home") + "/Desktop" + "/WB/", fname + "_POLY", "png", resPOLY);
 			// cc.correctImage(img, ColorModes.LAB_L, false, 2).show("corrected");
 			
 			System.out.println();
-			resWB.show("resWB");
-			resREG.show("resREG");
-			resPOLY.show("resPOLY");
+			resWB.show("resWB", debug);
+			resREG.show("resREG", debug);
+			resPOLY.show("resPOLY", debug);
 			
-			Thread.sleep(100);
+			System.out.println("Finish Correction.");
 		}
 		
 		ImageJ ij = new ImageJ();
