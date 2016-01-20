@@ -427,7 +427,7 @@ public class ColorChecker {
 	}
 
 	public void addNamestoSampleList() {
-		String names[] = new String[] {"Darkskin", "Lightskin", "Bluesky", "Foliage", "Blueflower", "Bluishgreen", "Orange", "Purplishblue", "Moderatered", "Purple", "Yellowgreen", "Orangeyellow", "Blue", "Green", "Red", "Yellow", "Magenta", "Cyan", "White", "Neutral8", "Neutral6.5", "Neutral5", "Neutral3.5", "Black"};
+		String names[] = CCColorNames.getNames();
 		for(int idx = 0; idx < sampleList.length; idx++) {
 			sampleList[idx].name = names[idx];
 		}

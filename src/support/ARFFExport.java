@@ -7,6 +7,7 @@ import java.io.IOException;
 import correction.ColorSpaces;
 import correction.ColorValues;
 import de.ipk.ag_ba.image.structures.Image;
+import detection.CCColorNames;
 
 public class ARFFExport {
 	
@@ -41,6 +42,40 @@ public class ARFFExport {
 				fw.write(line);
 		}
 		
+		fw.write("%");
+		fw.close();
+	}
+	
+	/**
+	 * Export of RGB colorchecker values including Arff header with color names.
+	 */
+	public void exportColorChartValuestoArff(ColorValues[] samples, String path, String name) throws IOException {
+		FileWriter fw = new FileWriter(new File(path + "/" + name + ".arff"), false);
+		
+		String header = "";
+		String line = "";
+		
+		// create header
+		String colorNames[] = CCColorNames.getNames();
+		String colorSpaces[] = new String[] {"R", "G", "B"};
+		
+		for(String colorName : colorNames)
+			for(String col : colorSpaces)
+				header += "@attribute " + colorName + "_" + col
+				+ "\tNUMERIC\n";
+		
+		header = "%\n" + "@relation '" + name + "'\n" + header
+				+ "@data\n";
+				
+		fw.write(header);
+	
+			
+		// start to add lines
+		for(ColorValues s : samples) {
+			line += s.getAvgColor(ColorSpaces.RGB).getA() + " " + s.getAvgColor(ColorSpaces.RGB).getB() + " " + s.getAvgColor(ColorSpaces.RGB).getC() + " ";
+		}
+		
+		fw.write(line);
 		fw.write("%");
 		fw.close();
 	}

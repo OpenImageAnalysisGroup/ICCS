@@ -11,7 +11,7 @@ import support.HelperMethods;
 
 /**
  * Detects color chart in image and export different kind of data in respect to the parameterization.
- * parms: 1. path to image including color chart; 2. ARFF export checker values, ARFF export for vis, full image to ARFF conversion including color chart values (0,1,2); 3. save debug image (true/false); 4. export color mode (RGB, Lab)
+ * parms: 1. path to image including color chart; 2. ARFF export checker values, ARFF export for vis, ARFF export of checker values including header, full image to ARFF conversion including color chart values (0,1,2,3); 3. save debug image (true/false); 4. export color mode (RGB, Lab)
  * @author pape
  *
  */
@@ -48,6 +48,10 @@ public class DetectColorChart {
 					ae.exporttoForVisualization(samples,System.getProperty("user.home") + "/Desktop" + "/", "samplesForVis_" + export_color_mode, export_color_mode);
 					break;
 				case 2:
+					ae.exportColorChartValuestoArff(samples, System.getProperty("user.home") + "/Desktop" 
+							 + "/", "chartsamples"); 
+					break;
+				case 3:
 					ae.exportImagetoArff(img, samples, System.getProperty("user.home") + "/Desktop" + "/", FilenameUtils.getBaseName(input.getName()));
 					break;
 			}
