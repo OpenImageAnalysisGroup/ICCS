@@ -1,0 +1,6 @@
+{
+  "name": "ICCS",
+  "tagline": "Image Color Correction System",
+  "body": "### Welcome to ICCS - the **I**mage **C**olor **C**orrection **S**ystem\r\nICCS provides tools and methods for image color correction (normalization) based on a color chart. This includes the color chart detection and several methods for image color correction using machine learning approaches.\r\n\r\n### Features\r\n\r\n* color correction\r\n* color chart detection and recognition\r\n* machine learning\r\n* raw image support\r\n\r\n### Contributors\r\n\r\n* Jean-Michel Pape\r\n* Christrian Klukas\r\n\r\n\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
